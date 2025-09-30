@@ -1,7 +1,25 @@
+import csv
+
 def carica_da_file(file_path):
     """Carica i libri dal file"""
-    # TODO
-
+    #da mettere meno righe all'interno del try
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            csvInputFile = csv.DictReader(f, fieldnames=['title', 'author', 'year', "pages", "section"])
+            class book:
+                def __init__(self, title, author, year, pages, section):
+                    self.title = title
+                    self.author = author
+                    self.year = year
+                    self.pages = pages
+                    self.quantity = section
+            books = []
+            for line in csvInputFile:
+                book1 = book(line["title"], line["author"], line["year"], line["pages"], line["section"])
+                books.append(book1)
+        return books
+    except FileNotFoundError:
+        return None
 
 def aggiungi_libro(biblioteca, titolo, autore, anno, pagine, sezione, file_path):
     """Aggiunge un libro nella biblioteca"""
