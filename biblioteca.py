@@ -1,40 +1,75 @@
 import csv
+from operator import itemgetter
 
 def carica_da_file(file_path):
     """Carica i libri dal file"""
-    #da mettere meno righe all'interno del try
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            csvInputFile = csv.DictReader(f, fieldnames=['title', 'author', 'year', "pages", "section"])
-            class book:
-                def __init__(self, title, author, year, pages, section):
-                    self.title = title
-                    self.author = author
-                    self.year = year
-                    self.pages = pages
-                    self.quantity = section
-            books = []
-            for line in csvInputFile:
-                book1 = book(line["title"], line["author"], line["year"], line["pages"], line["section"])
-                books.append(book1)
-        return books
+        f = open(file_path, 'r', encoding='utf-8')
     except FileNotFoundError:
         return None
+    csvInputFile = csv.DictReader(f, fieldnames=['title', 'author', 'year', "pages", "section"])
+    books = []
+    for book in csvInputFile:
+        books.append(book)
+    books.pop(0)
+    library = []
+    section = []
+    for i in range(int(max(books, key=itemgetter("section"))["section"])):
+        j = i + 1
+        for book in books:
+            if int(book["section"]) == j:
+                section.append(book)
+        library.append(list(section))
+        section.clear()
+    f.close()
+    return library
 
 def aggiungi_libro(biblioteca, titolo, autore, anno, pagine, sezione, file_path):
     """Aggiunge un libro nella biblioteca"""
     # TODO
-
+    libro = {"title": titolo, "author": autore, "year": str(anno), "pages": str(pagine), "section": sezione}
+    bookAlreadyInThere = False
+    try:
+        for currentBook in biblioteca[libro["section"]-1]:
+            if currentBook["title"] == libro["title"]:
+                bookAlreadyInThere = True
+    except IndexError:
+        return None
+    if not bookAlreadyInThere:
+        biblioteca[libro["section"]-1].append(libro)
+        try:
+            f = open(file_path, 'a', encoding='utf-8')
+        except FileNotFoundError:
+            return None
+        f.write(",".join(libro.values()))
+        f.close()
+        return libro
+    else:
+        return None
 
 def cerca_libro(biblioteca, titolo):
     """Cerca un libro nella biblioteca dato il titolo"""
     # TODO
-
+    found = False
+    for section in biblioteca:
+        for book in section:
+            if book["title"] == titolo:
+                found = True
+                return ", ".join(book.values())
+    if not found:
+        return None
 
 def elenco_libri_sezione_per_titolo(biblioteca, sezione):
     """Ordina i titoli di una data sezione della biblioteca in ordine alfabetico"""
     # TODO
-
+    try:
+        sortedSection = sorted(biblioteca[sezione-1], key=itemgetter("title"))
+    except IndexError:
+        return None
+    titleList = []
+    for book in sortedSection:
+        titleList.append(book["title"])
+    return titleList
 
 def main():
     biblioteca = []
@@ -105,6 +140,8 @@ def main():
             if titoli is not None:
                 print(f'\nSezione {sezione} ordinata:')
                 print("\n".join([f"- {titolo}" for titolo in titoli]))
+            else:
+                print("Questa sezione non esiste")
 
         elif scelta == "5":
             print("Uscita dal programma...")
