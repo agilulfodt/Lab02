@@ -27,16 +27,16 @@ def carica_da_file(file_path):
 def aggiungi_libro(biblioteca, titolo, autore, anno, pagine, sezione, file_path):
     """Aggiunge un libro nella biblioteca"""
     # TODO
-    libro = {"title": titolo, "author": autore, "year": str(anno), "pages": str(pagine), "section": sezione}
+    libro = {"title": titolo, "author": autore, "year": str(anno), "pages": str(pagine), "section": str(sezione)}
     bookAlreadyInThere = False
     try:
-        for currentBook in biblioteca[libro["section"]-1]:
+        for currentBook in biblioteca[int(libro["section"])-1]:
             if currentBook["title"] == libro["title"]:
                 bookAlreadyInThere = True
     except IndexError:
         return None
     if not bookAlreadyInThere:
-        biblioteca[libro["section"]-1].append(libro)
+        biblioteca[int(libro["section"])-1].append(libro)
         try:
             f = open(file_path, 'a', encoding='utf-8')
         except FileNotFoundError:
